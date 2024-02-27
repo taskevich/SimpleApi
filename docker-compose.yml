@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  backend:
+    container_name: "backend"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/backend
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - base
+
+  base:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=simpleapi
+    volumes:
+      - .pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d simpleapi -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5

@@ -1,0 +1,11 @@
+uvicorn
+fastapi
+psycopg2-binary
+sqlalchemy
+asyncio
+aiohttp
+python-dotenv
+Pillow
+python-multipart
+PyJWT
+asyncpg
