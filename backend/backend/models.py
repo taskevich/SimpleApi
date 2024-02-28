@@ -81,6 +81,9 @@ class TariffHasFeatures(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     tariff_id = Column(Integer)
     feature_id = Column(Integer)
+    max_tables = Column(Integer)
+    max_rows = Column(Integer)
+    max_files = Column(Integer)
 
 
 class TariffHasDiscount(Base):
@@ -95,6 +98,41 @@ class TariffHasDiscount(Base):
     discount_id = Column(Integer)
 
 
+#
+#   Таблицы пользовательских сервисов
+#
+
+
+class Services(Base):
+    __tablename__ = "services"
+
+    id = Column(BigInteger, primary_key=True, nullable=False)
+    name = Column(String(64), nullable=False)
+    description = Column(String(255))
+    is_deleted = Column(Boolean, default=False)
+    created_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at = Column(DateTime, nullable=False,
+                        server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+
+
+class ServicePreference(Base):
+    __tablename__ = "service_preferences"
+
+    id = Column(BigInteger, primary_key=True, nullable=False)
+    database_name = Column(String, nullable=False, unique=True)
+    max_tables = Column(Integer, default=3, nullable=False)
+    max_rows = Column(Integer, default=1000000, nullable=False)
+    max_files = Column(Integer, default=100, nullable=False)
+
+
+class UserHasService(Base):
+    __tablename__ = "user_has_service"
+
+    id = Column(BigInteger, primary_key=True, nullable=False)
+    service_id = Column(BigInteger, ForeignKey("services.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+
+
 class SingletonMeta(type):
     _instances = {}
     _lock: Lock = Lock()
@@ -106,10 +144,6 @@ class SingletonMeta(type):
                 cls._instances[cls] = instance
         return cls._instances[cls]
 
-
-#
-#   Таблицы пользовательских сервисов
-#
 
 class DB(metaclass=SingletonMeta):
     def __init__(self):
