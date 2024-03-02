@@ -1,10 +1,13 @@
 from uuid import uuid4
 from threading import Lock
-from sqlalchemy import Column, Integer, BigInteger, String, Float, ForeignKey, text, DateTime, ForeignKeyConstraint, Boolean
+from sqlalchemy import Column, Integer, BigInteger, String, Float, ForeignKey, text, DateTime, ForeignKeyConstraint, \
+    Boolean, select, or_
 from contextlib import asynccontextmanager
 from asyncpg import Connection
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, relationship
+
+from backend.backend.logger import logger
 
 
 class CConnection(Connection):
@@ -45,9 +48,6 @@ class Discounts(Base):
 
 class Users(Base):
     __tablename__ = "users"
-    __table_args__ = (
-        ForeignKeyConstraint(["role_id"], ["roles.id"], name="user_role_id_fk"),
-    )
 
     id = Column(BigInteger, primary_key=True, nullable=False)
     username = Column(String(32), unique=True, nullable=False)
@@ -55,11 +55,14 @@ class Users(Base):
     email = Column(String(64), nullable=False, unique=True)
     phone = Column(String(16), nullable=True, unique=True)
     is_active = Column(Boolean)
-    is_blocked = Column(Boolean, server_default=text("true"))
-    role_id = Column(Integer)
+    is_blocked = Column(Boolean, server_default=text("TRUE"))
+    is_receive_notifications = Column(Boolean, server_default=text("TRUE"))
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
     created_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     updated_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"),
                         onupdate=text("CURRENT_TIMESTAMP"))
+
+    role = relationship("Roles", lazy="subquery")
 
 
 class Tariffs(Base):
@@ -73,26 +76,18 @@ class Tariffs(Base):
 
 class TariffHasFeatures(Base):
     __tablename__ = "tariff_has_features"
-    __table_args__ = (
-        ForeignKeyConstraint(["tariff_id"], ["tariffs.id"], name="tariff_id_fk"),
-        ForeignKeyConstraint(["feature_id"], ["features.id"], name="features_id_fk")
-    )
 
     id = Column(Integer, primary_key=True, nullable=False)
-    tariff_id = Column(Integer)
-    feature_id = Column(Integer)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id"), nullable=False)
+    feature_id = Column(Integer, ForeignKey("features.id"), nullable=False)
 
 
 class TariffHasDiscount(Base):
     __tablename__ = "tariff_has_discount"
-    __table_args__ = (
-        ForeignKeyConstraint(["tariff_id"], ["tariffs.id"], name="tariff_id_fk"),
-        ForeignKeyConstraint(["discount_id"], ["discounts.id"], name="discounts_id_fk")
-    )
 
     id = Column(Integer, primary_key=True, nullable=False)
-    tariff_id = Column(Integer)
-    discount_id = Column(Integer)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id"), nullable=False)
+    discount_id = Column(Integer, ForeignKey("discounts.id"), nullable=False)
 
 
 class SingletonMeta(type):
@@ -129,7 +124,57 @@ class DB(metaclass=SingletonMeta):
 
     async def initialize_connection(self):
         async with self.engine.begin() as conn:
+            # await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
+
+    async def get_user_by_username_or_email(self, username: str) -> Users | None:
+        async with self.create_session() as session:
+            try:
+                return (await session.execute(select(Users)
+                                              .where(or_(Users.username == username,
+                                                         Users.email == username)))).scalars().first()
+            except Exception as ex:
+                logger.error(f"Ошибка получения пользователя: {ex}")
+
+    async def create_new_user(self, username: str, password: str, email: str,
+                              phone: str | None = None, receive_notifications_email: bool = False):
+        async with self.create_session() as session:
+            try:
+                if await self.get_user_by_username_or_email(username):
+                    return True, "Пользователь уже существует"
+
+                user = Users(
+                    username=username,
+                    password=password,
+                    email=email,
+                    phone=phone,
+                    role_id=2,
+                    is_receive_notifications=receive_notifications_email
+                )
+
+                session.add(user)
+                await session.commit()
+                return user, "Вы успешно зарегистрированы"
+            except Exception as ex:
+                logger.error(f"Ошибка создания пользователя: {ex}")
+                return True, "Ошибка создания пользователя"
+
+    async def create_role(self, name: str, text_name: str) -> Roles | None:
+        async with self.create_session() as session:
+            try:
+                role = Roles(name=name, text_name=text_name)
+                session.add(role)
+                await session.commit()
+                return role
+            except Exception as ex:
+                logger.error(f"Ошибка создания роли: {ex}")
+
+    async def get_role_by_name(self, name: str) -> Roles | None:
+        async with self.create_session() as session:
+            try:
+                return (await session.execute(select(Roles).where(Roles.name == name))).scalars().first()
+            except Exception as ex:
+                logger.error(f"Ошибка получения роли: {ex}")
 
     @asynccontextmanager
     async def create_session(self):

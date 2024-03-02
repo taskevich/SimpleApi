@@ -1,20 +1,58 @@
-from fastapi import APIRouter
+import jwt
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi import HTTPException
+from starlette import status
 
+from backend.backend.auth import create_access_token, check_password, CustomHTTPBearer, ALGORITHM, SECRET_KEY
 from backend.backend.schemas import *
+from backend.backend.models import *
+from backend.backend.auth import hash_password
 
 router = APIRouter()
+security = CustomHTTPBearer()
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if decoded_token:
+            return Users(id=decoded_token["id"], name=decoded_token["name"], password=decoded_token["password"])
+    except jwt.exceptions.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
 
 
 @router.post("/api/auth/login", response_model=AuthResponse, tags=["API", "CREDENTIALS"])
 async def login(request: AuthRequest):
     """ Маршрут авторизации """
-    return AuthResponse()
+    username = request.username
+    password = request.password
+
+    user = await DB().get_user_by_username_or_email(username)
+    if not user:
+        return DefaultResponse(error=True, message="Пользователь с таким именем пользователя не найден")
+
+    if check_password(password, user.password) is False:
+        return DefaultResponse(error=True, message="Неправильный пароль")
+
+    token = create_access_token(user)
+
+    return AuthResponse(message=token)
 
 
 @router.post("/api/auth/registration", response_model=RegistrationResponse, tags=["API", "CREDENTIALS"])
 async def register(request: RegistrationRequest):
     """ Маршрут регистарции """
-    return RegistrationResponse()
+    error, message = await DB().create_new_user(request.username, hash_password(request.password),
+                                                request.email, request.phone, request.receiveNotificationsEmail)
+    if error is True:
+        return DefaultResponse(error=True, message=message)
+
+    return RegistrationResponse(message=message)
 
 
 @router.post("/api/auth/recovery", response_model=RecoveryResponse, tags=["API", "CREDENTIALS"])

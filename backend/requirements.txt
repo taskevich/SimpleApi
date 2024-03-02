@@ -9,3 +9,4 @@ Pillow
 python-multipart
 PyJWT
 asyncpg
+bcrypt

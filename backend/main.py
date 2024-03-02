@@ -16,5 +16,12 @@ async def on_startup():
         logger.info("Инициализация базы данных")
         await DB().initialize_connection()
         logger.info("База данных инициализирована")
+
+        if not await DB().get_role_by_name("admin"):
+            await DB().create_role("admin", "Админ")
+        if not await DB().get_role_by_name("user"):
+            await DB().create_role("user", "Пользователь")
+        if not await DB().get_role_by_name("moderator"):
+            await DB().create_role("moderator", "Модератор")
     except Exception as ex:
         logger.error(f"Ошибка инициализации данных: {ex}")
