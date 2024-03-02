@@ -1,0 +1,17 @@
+{
+  "NameProject": "SimpleApi",
+  "NavMenu": [
+      {
+        "path": "main",
+        "title": "Главная"
+    },
+      {
+        "path": "about",
+        "title": "О нас"
+      },
+      {
+        "path": "contacts",
+        "title": "Контаткы"
+      }
+    ]
+}

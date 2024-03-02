@@ -1,0 +1,54 @@
+@import url(./variable.scss);
+
+*{
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style: none;
+  font-family: "Poppins", sans-serif;
+}
+.container {
+  width: 100%;
+  max-width: 1440px;
+}
+.active {
+  border-bottom: 1px solid var(--PrimaryColor);
+}
+
+a {
+  color: var(--PrimaryColor);
+}
+body{
+  background-color: var(--bgColor);
+}
+h2, p {
+  color: var(--PrimaryColor);
+}
+#root {
+  width: 100%;
+}
+header {
+  width: 100%;
+  position: fixed;
+  justify-content: center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--PrimaryColor);
+  background: var(--bgColor);
+  .container {
+    justify-content: space-between;
+
+  }
+  .navList {
+
+    gap: 50px;
+  }
+  .navItem {
+    font-size: 20px;
+    font-weight: 500;
+  }
+}
+main {
+  min-height: 100vh;
+}
+footer {
+}
