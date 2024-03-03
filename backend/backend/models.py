@@ -36,6 +36,9 @@ class Features(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String(64), unique=True, nullable=False)
+    max_services = Column(Integer, server_default=text("1"))
+    max_rows = Column(Integer, server_default=text("5000"))
+    max_files = Column(Integer, server_default=text("50"))
 
 
 class Discounts(Base):
@@ -73,6 +76,19 @@ class Tariffs(Base):
     description = Column(String, nullable=False)
     price = Column(Integer, server_default=text("0"))
 
+    tariff_expire = relationship("TariffExpire", lazy="subquery")
+    tariff_has_features = relationship("TariffHasFeatures", lazy="subquery")
+    Tariff_has_discount = relationship("TariffHasDiscount", lazy="subquery")
+
+
+class TariffExpire(Base):
+    __tablename__ = "tariff_expire"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id"))
+    start_date = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    end_date = Column(DateTime)
+
 
 class TariffHasFeatures(Base):
     __tablename__ = "tariff_has_features"
@@ -90,6 +106,39 @@ class TariffHasDiscount(Base):
     discount_id = Column(Integer, ForeignKey("discounts.id"), nullable=False)
 
 
+#
+#   Таблицы пользовательских сервисов
+#
+
+class Service(Base):
+    __tablename__ = "services"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    service_name = Column(String(64), nullable=False)
+    is_active = Column(Boolean, server_default=text("TRUE"))
+    database_name = Column(String(32), nullable=False)
+    table_name = Column(String(32), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"),
+                        onupdate=text("CURRENT_TIMESTAMP"))
+
+
+class UserHasService(Base):
+    __tablename__ = "user_has_service"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    service_id = Column(Integer, ForeignKey("services"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+
+class ServiceStatistic(Base):
+    __tablename__ = "service_statistic"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    files_count = Column(Integer, server_default=text("0"))
+    rows_count = Column(Integer, server_default=text("0"))
+
+
 class SingletonMeta(type):
     _instances = {}
     _lock: Lock = Lock()
@@ -101,10 +150,6 @@ class SingletonMeta(type):
                 cls._instances[cls] = instance
         return cls._instances[cls]
 
-
-#
-#   Таблицы пользовательских сервисов
-#
 
 class DB(metaclass=SingletonMeta):
     def __init__(self):
@@ -175,6 +220,30 @@ class DB(metaclass=SingletonMeta):
                 return (await session.execute(select(Roles).where(Roles.name == name))).scalars().first()
             except Exception as ex:
                 logger.error(f"Ошибка получения роли: {ex}")
+
+    async def change_user_data(self, username_or_email: str, new_password: str = None,
+                               new_email: str = None, new_phone: str = None, receive_email_notifications: bool = False):
+        async with self.create_session() as session:
+            try:
+                user = await self.get_user_by_username_or_email(username_or_email)
+                if not user:
+                    return True, "Пользователь не найден"
+
+                if new_password:
+                    user.password = new_password
+                if username_or_email:
+                    user.username = username_or_email
+                if new_email:
+                    user.email = new_email
+                if new_phone:
+                    user.phone = new_phone
+                if receive_email_notifications:
+                    user.is_receive_notifications = receive_email_notifications
+
+                await session.commit()
+                return True, "Данные изменены"
+            except Exception as ex:
+                logger.error(f"Ошибка обновления данных пользователя: {ex}")
 
     @asynccontextmanager
     async def create_session(self):

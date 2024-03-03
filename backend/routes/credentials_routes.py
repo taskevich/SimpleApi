@@ -29,7 +29,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 @router.post("/api/auth/login", response_model=AuthResponse, tags=["API", "CREDENTIALS"])
 async def login(request: AuthRequest):
     """ Маршрут авторизации """
-    username = request.username
+    username = request.usernameOrEmail
     password = request.password
 
     user = await DB().get_user_by_username_or_email(username)
@@ -47,8 +47,12 @@ async def login(request: AuthRequest):
 @router.post("/api/auth/registration", response_model=RegistrationResponse, tags=["API", "CREDENTIALS"])
 async def register(request: RegistrationRequest):
     """ Маршрут регистарции """
-    error, message = await DB().create_new_user(request.username, hash_password(request.password),
-                                                request.email, request.phone, request.receiveNotificationsEmail)
+
+    # todo: email verification
+
+    error, message = await DB().create_new_user(username=request.username, password=hash_password(request.password),
+                                                email=request.email, phone=request.phone,
+                                                receive_notifications_email=request.receiveNotificationsEmail)
     if error is True:
         return DefaultResponse(error=True, message=message)
 
@@ -58,4 +62,16 @@ async def register(request: RegistrationRequest):
 @router.post("/api/auth/recovery", response_model=RecoveryResponse, tags=["API", "CREDENTIALS"])
 async def recovery(request: RecoveryRequest):
     """ Запрос на восстановление аккаунта """
-    return RecoveryResponse()
+
+    # todo: send email verification
+
+    username_or_email = request.usernameOrEmail
+    new_password = request.newPassword
+
+    error, message = await DB().change_user_data(username_or_email=username_or_email,
+                                                 new_password=hash_password(new_password))
+
+    if error is True:
+        return RecoveryResponse(error=error, message=message)
+
+    return RecoveryResponse(error=error, message=message)

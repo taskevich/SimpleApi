@@ -11,7 +11,7 @@ class DefaultResponse(BaseModel):
 
 class AuthRequest(BaseModel):
     """ Запрос на авторизацию """
-    username: Optional[str]
+    usernameOrEmail: Optional[str]
     password: Optional[str]
 
 
@@ -34,8 +34,7 @@ class RegistrationResponse(BaseModel):
 
 class RecoveryRequest(DefaultResponse):
     """ Запрос на восстановление аккаунта """
-    username: Optional[str]
-    email: Optional[str] = None
+    usernameOrEmail: Optional[str]
     newPassword: Optional[str]
 
 
@@ -67,3 +66,39 @@ class TariffsResponse(DefaultResponse):
     """ Ответ на запрос тарифов """
     totalCount: Optional[int] = 0
     payload: Optional[List[TariffItem]] = None
+
+
+class ServiceStatisticItem(BaseModel):
+    """ Элемент статистики """
+    id: Optional[int]
+    filesCount: Optional[int]
+    rowsCount: Optional[int]
+
+
+class ServiceStatistic(DefaultResponse):
+    """ Ответ на получении статистики сервиса """
+    totalCount: Optional[int] = 0
+    payload: Optional[ServiceStatisticItem]
+
+
+class ServiceItem(BaseModel):
+    """ Элемент сервиса """
+
+    id: Optional[int]
+    serviceName: Optional[str]
+    isActive: Optional[bool]
+    databaseName: Optional[str]
+    tableName: Optional[str]
+    createdAt: Optional[str]
+    updatedAt: Optional[str]
+
+
+class ServicesResponse(DefaultResponse):
+    """ Ответ на получении статистики сервиса """
+    totalCount: Optional[int] = 0
+    payload: Optional[ServiceItem]
+
+
+class PanelResponse(DefaultResponse):
+    totalCount: Optional[int] = 0
+    payload: Optional[Any] = None
