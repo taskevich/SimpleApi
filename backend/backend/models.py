@@ -127,7 +127,7 @@ class UserHasService(Base):
     __tablename__ = "user_has_service"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    service_id = Column(Integer, ForeignKey("services"), nullable=False)
+    service_id = Column(Integer, ForeignKey("services.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
 
