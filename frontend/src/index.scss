@@ -21,6 +21,20 @@ a {
 body{
   background-color: var(--bgColor);
 }
+button {
+  padding: 10px 15px;
+  background: none;
+  border: 1px solid var(--PrimaryColor);
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: 100;
+}
+h2 {
+  font-size: 32px;
+}
+p {
+  font-size: 24px;
+}
 h2, p {
   color: var(--PrimaryColor);
 }
@@ -36,14 +50,18 @@ header {
   background: var(--bgColor);
   .container {
     justify-content: space-between;
-
+    align-items: center;
+  }
+  .authBtn {
+    display: flex;
+    gap: 50px;
   }
   .navList {
 
     gap: 50px;
   }
   .navItem {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 500;
   }
 }
