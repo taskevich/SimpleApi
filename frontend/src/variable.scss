@@ -12,3 +12,8 @@
   width: 100%;
   max-width: 1440px;
 }
+@media (min-width: 320px) and (max-width: 700px){
+  .container {
+    max-width: 320px;
+  }
+}

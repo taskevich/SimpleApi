@@ -7,10 +7,7 @@
   list-style: none;
   font-family: "Poppins", sans-serif;
 }
-.container {
-  width: 100%;
-  max-width: 1440px;
-}
+
 .active {
   border-bottom: 1px solid var(--PrimaryColor);
 }
@@ -41,10 +38,12 @@ h2, p {
 #root {
   width: 100%;
 }
+header, main, footer {
+  justify-content: center;
+}
 header {
   width: 100%;
-  position: fixed;
-  justify-content: center;
+  //position: fixed;
   padding: 20px 0;
   border-bottom: 1px solid var(--PrimaryColor);
   background: var(--bgColor);

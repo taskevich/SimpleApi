@@ -2,9 +2,8 @@ import React from 'react';
 
 const RecoveryPassPage = () => {
     return (
-
         <form>
-            <input/>
+            <input type="email" name="email"/>
             <button>Восстановить</button>
         </form>
     )

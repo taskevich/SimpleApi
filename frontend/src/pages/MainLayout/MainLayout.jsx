@@ -21,11 +21,15 @@ const MainLayout = () => {
                     </div>
                 </div>
             </header>
-            <main>
-                <Outlet/>
+            <main className="flex">
+                <div className="container">
+                    <Outlet/>
+                </div>
             </main>
-            <footer>
-                <p>Footer</p>
+            <footer className="flex">
+                <div className="container">
+                    <p>Footer</p>
+                </div>
             </footer>
         </>
     )

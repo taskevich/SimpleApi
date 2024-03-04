@@ -2,7 +2,7 @@
   "NameProject": "SimpleApi",
   "NavMenu": [
       {
-        "path": "main",
+        "path": "/",
         "title": "Главная"
     },
       {
@@ -10,8 +10,8 @@
         "title": "О нас"
       },
       {
-        "path": "contacts",
-        "title": "Контаткы"
+        "path": "tariffs",
+        "title": "Тарифы"
       }
     ]
 }
