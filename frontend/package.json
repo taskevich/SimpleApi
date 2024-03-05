@@ -63,8 +63,8 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
-    "start": "PORT=80 react-scripts start",
-    "build": "PORT=80 react-scripts build",
+    "start": "react-scripts start ",
+    "build": "react-scripts build",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
