@@ -39,6 +39,7 @@
     "postcss-normalize": "^10.0.1",
     "postcss-preset-env": "^7.0.1",
     "prompts": "^2.4.2",
+    "react-scripts": "^5.0.1",
     "react": "^18.2.0",
     "react-app-polyfill": "^3.0.0",
     "react-dev-utils": "^12.0.1",
@@ -62,8 +63,8 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "start": "PORT=80 react-scripts start",
+    "build": "PORT=80 react-scripts build",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
