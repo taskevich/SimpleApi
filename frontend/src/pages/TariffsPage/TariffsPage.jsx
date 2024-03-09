@@ -1,9 +1,11 @@
 import React from 'react';
+import TarrifsList from "../../components/TariffsList/TarrifsList";
 
 const TariffsPage = () => {
     return(
         <>
-            Тарифы
+            <h2>Тарифные планы</h2>
+            <TarrifsList/>
         </>
     )
 };

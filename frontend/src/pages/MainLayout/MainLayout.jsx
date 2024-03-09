@@ -1,26 +1,15 @@
 import React from 'react';
 import string from "../../string.json";
 import {Link, NavLink, Outlet} from "react-router-dom";
+import {useUser} from "../../utils/lib/Auth/UserContext";
+import "./style.scss"
+import Header from "../../components/Header/Header";
+import Background from "../../components/bg/Background";
 
 const MainLayout = () => {
     return (
         <>
-            <header className="flex">
-                <div className="flex container">
-                    <div className="logoName">
-                        <h2>{string.NameProject}</h2>
-                    </div>
-                    <li className="navList flex">
-                        {string.NavMenu.map((nav, index) => (
-                            <NavLink className="navItem " key={index} to={nav.path}>{nav.title}</NavLink>
-                        ))}
-                    </li>
-                    <div className="authBtn">
-                        <button><Link to="/panel/signin">Авторизоваться</Link></button>
-                        <button><Link to="/panel/signup">Зарегестрироваться</Link></button>
-                    </div>
-                </div>
-            </header>
+            <Header/>
             <main className="flex">
                 <div className="container">
                     <Outlet/>
@@ -31,6 +20,8 @@ const MainLayout = () => {
                     <p>Footer</p>
                 </div>
             </footer>
+
+            <Background/>
         </>
     )
 };

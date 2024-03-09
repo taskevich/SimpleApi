@@ -1,0 +1,31 @@
+header, main, footer {
+  justify-content: center;
+}
+header {
+  width: 100%;
+  //position: fixed;
+  padding: 20px 0;
+  box-shadow: var(--shadow);
+  background: var(--bgColor);
+  .container {
+    justify-content: space-between;
+    align-items: center;
+  }
+  .authBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+  }
+  .navList {
+    gap: var(--gap);
+  }
+  .navItem {
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+main {
+  min-height: 100vh;
+}
+footer {
+}

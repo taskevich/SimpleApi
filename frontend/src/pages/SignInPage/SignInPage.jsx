@@ -1,23 +1,26 @@
 import React, {useState} from 'react';
-import {Login} from "../../utils/lib/Auth/Login";
+import {change} from "../../utils/lib/Change/Change";
+import {useUser} from "../../utils/lib/Auth/UserContext";
 
 const SignInPage = () => {
+    const {login} = useUser()
     const [user, setUser] = useState({
         login: "",
         password: ""
     })
-    const changed = (e) => {
-        const {name, value} = e.target
-        setUser({...user,[name]:value})
-    }
+
+
     return (
-        <div>
-            <input value={user.login} onChange={changed} type="text" name="login"/>
-            <input value={user.password} onChange={changed} type="text" name="password"/>
-            <button onClick={() =>Login(user.login, user.password)}>
+        <>
+            <h2>Авторизация</h2>
+            <p>Логин</p>
+            <input value={user.login} onChange={(e) => change(e, user, setUser)} type="text" name="login"/>
+            <p>Пароль</p>
+            <input value={user.password} onChange={(e) => change(e, user, setUser)} type="password" name="password"/>
+            <button className="btn" onClick={() => login(user)}>
                 Войти
             </button>
-        </div>
+        </>
     )
 };
 

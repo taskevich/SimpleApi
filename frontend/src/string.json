@@ -1,5 +1,5 @@
 {
-  "NameProject": "SimpleApi",
+  "NameProject": "SimpleAPI",
   "NavMenu": [
       {
         "path": "/",
@@ -13,5 +13,19 @@
         "path": "tariffs",
         "title": "Тарифы"
       }
-    ]
+    ],
+  "tariffs": [
+    {
+      "title": "Базовый",
+      "price": "100"
+    },
+    {
+      "title": "Бизнес",
+      "price": "200"
+    },
+    {
+      "title": "Домашний",
+      "price": "300"
+    }
+  ]
 }
