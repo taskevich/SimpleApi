@@ -1,7 +1,7 @@
 from uuid import uuid4
 from threading import Lock
 from sqlalchemy import Column, Integer, BigInteger, String, Float, ForeignKey, text, DateTime, ForeignKeyConstraint, \
-    Boolean, select, or_
+    Boolean, select, or_, func, insert, delete
 from contextlib import asynccontextmanager
 from asyncpg import Connection
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -39,6 +39,7 @@ class Features(Base):
     max_services = Column(Integer, server_default=text("1"))
     max_rows = Column(Integer, server_default=text("5000"))
     max_files = Column(Integer, server_default=text("50"))
+    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="all, cascade"), nullable=False)
 
 
 class Discounts(Base):
@@ -47,6 +48,7 @@ class Discounts(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String(64), unique=True, nullable=False)
     value = Column(Float, server_default=text("0"))
+    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="all, cascade"), nullable=False)
 
 
 class Users(Base):
@@ -77,8 +79,8 @@ class Tariffs(Base):
     price = Column(Integer, server_default=text("0"))
 
     tariff_expire = relationship("TariffExpire", lazy="subquery")
-    tariff_has_features = relationship("TariffHasFeatures", lazy="subquery")
-    Tariff_has_discount = relationship("TariffHasDiscount", lazy="subquery")
+    tariff_features = relationship("Features", lazy="subquery")
+    tariff_discount = relationship("Discounts", lazy="subquery")
 
 
 class TariffExpire(Base):
@@ -88,22 +90,6 @@ class TariffExpire(Base):
     tariff_id = Column(Integer, ForeignKey("tariffs.id"))
     start_date = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     end_date = Column(DateTime)
-
-
-class TariffHasFeatures(Base):
-    __tablename__ = "tariff_has_features"
-
-    id = Column(Integer, primary_key=True, nullable=False)
-    tariff_id = Column(Integer, ForeignKey("tariffs.id"), nullable=False)
-    feature_id = Column(Integer, ForeignKey("features.id"), nullable=False)
-
-
-class TariffHasDiscount(Base):
-    __tablename__ = "tariff_has_discount"
-
-    id = Column(Integer, primary_key=True, nullable=False)
-    tariff_id = Column(Integer, ForeignKey("tariffs.id"), nullable=False)
-    discount_id = Column(Integer, ForeignKey("discounts.id"), nullable=False)
 
 
 #
@@ -204,6 +190,13 @@ class DB(metaclass=SingletonMeta):
                 logger.error(f"Ошибка создания пользователя: {ex}")
                 return True, "Ошибка создания пользователя"
 
+    async def get_tariffs(self) -> tuple[int, list[Tariffs]]:
+        async with self.create_session() as session:
+            session: AsyncSession
+            tariffs = (await session.execute(select(Tariffs).order_by(Tariffs.id))).scalars().all()
+            tariffs_count = (await session.execute(select(func.count(Tariffs.id)))).scalar()
+            return tariffs_count, tariffs
+
     async def create_role(self, name: str, text_name: str) -> Roles | None:
         async with self.create_session() as session:
             try:
@@ -220,6 +213,105 @@ class DB(metaclass=SingletonMeta):
                 return (await session.execute(select(Roles).where(Roles.name == name))).scalars().first()
             except Exception as ex:
                 logger.error(f"Ошибка получения роли: {ex}")
+
+    async def delete_tariff(self, tariff_id: int):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                await session.execute(
+                    delete(Tariffs)
+                    .where(Tariffs.id == tariff_id)
+                )
+                await session.commit()
+            except Exception as ex:
+                await session.rollback()
+                logger.error(f"Ошибка удаления тарифа: {ex}")
+                return True
+
+    async def link_feature(self, tariff_id: int, name: str, max_services: int, max_rows: int, max_files: int):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                await session.execute(
+                    insert(Features)
+                    .values(
+                        name=name,
+                        max_services=max_services,
+                        max_rows=max_rows,
+                        max_files=max_files,
+                        tariff_id=tariff_id
+                    )
+                )
+                await session.commit()
+                return False
+            except Exception as ex:
+                logger.error(f"Ошибка привязки фичи: {ex}")
+                return True
+
+    async def link_discount(self, tariff_id: int, name: str, value: float):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                await session.execute(
+                    insert(Discounts)
+                    .values(
+                        name=name,
+                        value=value,
+                        tariff_id=tariff_id
+                    )
+                )
+                await session.commit()
+                return False
+            except Exception as ex:
+                logger.error(f"Ошибка привязки скидки: {ex}")
+                return True
+
+    async def unlink_discount(self, tariff_id: int, discount_id: int):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                await session.execute(
+                    delete(Discounts)
+                    .where(Discounts.tariff_id == tariff_id, Discounts.id == discount_id)
+                )
+                await session.commit()
+                return False
+            except Exception as ex:
+                logger.error(f"Ошибка отвязки скидки: {ex}")
+                return True
+
+    async def unlink_feature(self, tariff_id: int, feature_id: int):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                await session.execute(
+                    delete(Features)
+                    .where(Features.tariff_id == tariff_id, Features.id == feature_id)
+                )
+                await session.commit()
+                return False
+            except Exception as ex:
+                logger.error(f"Ошибка отвязки фичи: {ex}")
+                return True
+
+    async def create_tariff(self, name: str, description: str, price: int):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                await session.execute(
+                    insert(Tariffs)
+                    .values(
+                        name=name,
+                        description=description,
+                        price=price
+                    )
+                )
+                await session.commit()
+                return False
+            except Exception as ex:
+                await session.rollback()
+                logger.error(f"Ошибка создания тарица: {ex}")
+                return True
 
     async def change_user_data(self, username_or_email: str, new_password: str = None,
                                new_email: str = None, new_phone: str = None, receive_email_notifications: bool = False):

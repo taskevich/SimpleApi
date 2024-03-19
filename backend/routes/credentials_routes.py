@@ -33,6 +33,9 @@ async def login(request: AuthRequest):
     password = request.password
 
     user = await DB().get_user_by_username_or_email(username)
+    if user.is_blocked:
+        return DefaultResponse(error=True, message="Аккаунт не активен")
+
     if not user:
         return DefaultResponse(error=True, message="Пользователь с таким именем пользователя не найден")
 
@@ -54,9 +57,9 @@ async def register(request: RegistrationRequest):
                                                 email=request.email, phone=request.phone,
                                                 receive_notifications_email=request.receiveNotificationsEmail)
     if error is True:
-        return DefaultResponse(error=True, message=message)
+        return RegistrationResponse(error=True, message=message)
 
-    return RegistrationResponse(message=message)
+    return RegistrationResponse(error=False, message=message)
 
 
 @router.post("/api/auth/recovery", response_model=RecoveryResponse, tags=["API", "CREDENTIALS"])
