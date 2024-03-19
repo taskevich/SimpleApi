@@ -4,7 +4,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from starlette import status
 
 from backend.backend.auth import CustomHTTPBearer, SECRET_KEY, ALGORITHM
-from backend.backend.models import Users
+from backend.backend.models import Users, DB
 from backend.backend.schemas import *
 
 router = APIRouter()
@@ -25,5 +25,10 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 
 @router.get("/panel", response_model=PanelResponse, tags=["API", "PANEL"])
-async def panel():
+async def panel(current_user: dict = Depends(get_current_user)):
+    """
+        Панель пользователя
+    """
+    tariff = await DB().get_user_tariff(current_user["id"])
+
     return PanelResponse()

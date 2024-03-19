@@ -14,19 +14,18 @@ services:
     depends_on:
       - base
 
-#  frontend:
-#    container_name: "frontend"
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./frontend:/frontend
-#    ports:
-#      - "80:80"
-#    restart: always
-#    depends_on:
-#      - backend
-#      - base
+  frontend:
+    container_name: "frontend"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - backend
 
   base:
     image: postgres:latest

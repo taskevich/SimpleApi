@@ -8,6 +8,7 @@ router = APIRouter()
 
 @router.post("/api/admin/tariff", response_model=CreateTariffResponse, tags=["API", "ADMIN"])
 async def add_ticket(request: CreateTariffRequest):
+    """ Добавление тарифа """
     error = await DB().create_tariff(request.tariffName, request.tariffDescription, request.tariffPrice)
 
     if error:
@@ -18,6 +19,7 @@ async def add_ticket(request: CreateTariffRequest):
 
 @router.delete("/api/admin/tariff", response_model=DeleteTariffResponse, tags=["API", "ADMIN"])
 async def delete_tariff(request: DeleteTariffRequest):
+    """ Удаление тарифа """
     error = await DB().delete_tariff(request.tariffId)
 
     if error:
@@ -28,6 +30,7 @@ async def delete_tariff(request: DeleteTariffRequest):
 
 @router.post("/api/admin/link-feature", response_model=LinkFeatureResponse, tags=["API", "ADMIN"])
 async def link_feature(request: LinkFeatureRequest):
+    """ Привязка фичи """
     error = await DB().link_feature(request.tariffId, request.payload.name, request.payload.max_services,
                                     request.payload.max_rows, request.payload.max_files)
 
@@ -39,6 +42,7 @@ async def link_feature(request: LinkFeatureRequest):
 
 @router.delete("/api/admin/unlink-feature", response_model=UnLinkFeatureResponse, tags=["API", "ADMIN"])
 async def unlink_feature(request: UnLinkFeatureRequest):
+    """ Отвязка фичи """
     error = await DB().unlink_feature(request.tariffId, request.featureId)
 
     if error:
@@ -48,7 +52,8 @@ async def unlink_feature(request: UnLinkFeatureRequest):
 
 
 @router.post("/api/admin/link-discount", response_model=LinkDiscountResponse, tags=["API", "ADMIN"])
-async def link_feature(request: LinkDiscountRequest):
+async def link_discount(request: LinkDiscountRequest):
+    """ Привязка скидки """
     error = await DB().link_discount(request.tariffId, request.discount.name, request.discount.value)
 
     if error:
@@ -59,6 +64,7 @@ async def link_feature(request: LinkDiscountRequest):
 
 @router.post("/api/admin/unlink-discount", response_model=UnLinkDiscountResponse, tags=["API", "ADMIN"])
 async def unlink_discount(request: UnLinkDiscountRequest):
+    """ Отвязка скидки от тарифа """
     error = await DB().unlink_discount(request.tariffId, request.discountId)
 
     if error:

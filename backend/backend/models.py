@@ -92,6 +92,14 @@ class TariffExpire(Base):
     end_date = Column(DateTime)
 
 
+class UserHasTariff(Base):
+    __tablename__ = "user_has_tariff"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="all, cascade"), nullable=False)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="all, cascade"), nullable=False)
+
+
 #
 #   Таблицы пользовательских сервисов
 #
@@ -196,6 +204,20 @@ class DB(metaclass=SingletonMeta):
             tariffs = (await session.execute(select(Tariffs).order_by(Tariffs.id))).scalars().all()
             tariffs_count = (await session.execute(select(func.count(Tariffs.id)))).scalar()
             return tariffs_count, tariffs
+
+    async def get_user_tariff(self, user_id: int):
+        async with self.create_session() as session:
+            session: AsyncSession
+            try:
+                tariff = (
+                    await session.execute(
+                        select(Tariffs).join(UserHasTariff, UserHasTariff.user_id == user_id)
+                        .where(Tariffs.id == UserHasTariff.tariff_id)
+                    )
+                ).scalar_one_or_none()
+                return tariff
+            except Exception as ex:
+                logger.error(f"Ошибка получения тарифа пользователя: {ex}")
 
     async def create_role(self, name: str, text_name: str) -> Roles | None:
         async with self.create_session() as session:
