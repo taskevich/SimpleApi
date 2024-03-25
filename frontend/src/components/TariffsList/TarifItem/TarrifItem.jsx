@@ -1,6 +1,6 @@
 import React from 'react';
 import "./style.scss"
-const TarifItem = ({item}) => {
+const TarrifItem = ({item}) => {
     return(
         <div className="tarrifItem flex">
             <h3>{item.title}</h3>
@@ -15,4 +15,4 @@ const TarifItem = ({item}) => {
     )
 };
 
-export default TarifItem;
+export default TarrifItem;

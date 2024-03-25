@@ -22,17 +22,6 @@ a {
 body{
   background-color: var(--bgColor);
 }
-.btn {
-  padding: 10px 15px;
-  background: none;
-  background: var(--PrimaryColor);
-  box-shadow: -4px 4px 10px 0 rgba(95,95,95,0.35);
-  border-radius: 5px;
-  color: var(--bgColor);
-  font-size: 16px;
-  font-weight: 100;
-  cursor: pointer;
-}
 
 h1,h2,h3,h4,h5,h6,h7 {
   font-size: 32px;

@@ -7,7 +7,7 @@
   .authForm {
     width: 100%;
     max-width: 400px;
-    padding: 50px;
+    padding: var(--padding);
     background: var(--bgColor);
     flex-direction: column;
     align-items: center;
