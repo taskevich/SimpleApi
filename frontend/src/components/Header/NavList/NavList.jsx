@@ -1,7 +1,7 @@
 import React from 'react';
 import string from "../../../string.json";
-import {NavLink} from "react-router-dom";
 import NavItem from "./NavItem/NavItem";
+import "./style.scss"
 
 const NavList = () => {
     return (

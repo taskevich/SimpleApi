@@ -1,10 +1,8 @@
 import React from 'react';
-import string from "../../string.json";
-import {Link, NavLink, Outlet} from "react-router-dom";
-import {useUser} from "../../utils/lib/Auth/UserContext";
+import {Outlet} from "react-router-dom";
 import "./style.scss"
-import Header from "../../components/Header/Header";
-import Background from "../../components/bg/Background";
+import Header from "../../../components/Header/Header";
+import Background from "../../../components/bg/Background";
 
 const MainLayout = () => {
     return (

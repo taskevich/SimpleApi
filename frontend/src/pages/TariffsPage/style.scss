@@ -1,0 +1,12 @@
+.tarifs {
+  margin-top: var(--gap);
+  background-color: var(--bgColor);
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  padding: var(--gap);
+  flex-direction: column;
+  gap: var(--gap);
+  h2 {
+    text-align: center;
+  }
+}

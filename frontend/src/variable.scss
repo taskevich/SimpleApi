@@ -4,13 +4,24 @@
   --gap: 25px;
   --padding: 50px;
   --shadow: -4px 4px 10px 0 rgba(95,95,95,0.35);
+  font-size: 14px;
+  font-style: normal;
 }
 
 .flex {
   display: flex;
 }
 
-
+.content {
+  width: calc( 100% - (var(--padding) * 2));
+  background-color: var(--bgColor);
+  box-shadow: var(--shadow);
+  padding: var(--padding);
+  border-radius: 10px;
+}
+.gap {
+  gap: var(--gap);
+}
 .container {
   width: 100%;
   max-width: 1440px;

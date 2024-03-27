@@ -2,13 +2,14 @@ import React from 'react';
 import Button from "../../../ui/Button/Button";
 import NavButton from "../../../ui/NavButton/NavButton";
 import {useUser} from "../../../utils/lib/Auth/UserContext";
+import "./style.scss"
 
 const AuthBtn = () => {
     const {user, logout} = useUser()
     return (
         <div className="authBtn">
             {
-                user != null ?
+                user.login != null ?
                     <>
                         <p>{user.login}</p>
                         <Button onClick={logout}>Выйти</Button>

@@ -3,11 +3,8 @@ header, main, footer {
 }
 
 main {
+  padding-top: 80px;
   min-height: 100vh;
-  h2 {
-    padding: var(--padding);
-    text-align: center;
-  }
 }
 footer {
 }

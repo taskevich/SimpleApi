@@ -2,6 +2,7 @@ import React from "react";
 import AuthBtn from "./AuthBtn/AuthBtn";
 import LogoName from "./LogoName/LogoName";
 import NavList from "./NavList/NavList";
+import "./style.scss"
 
 const Header = () => {
 

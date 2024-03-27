@@ -1,8 +1,9 @@
 import React from 'react';
+import "./style.scss"
 
 const Logo = () => {
     return (
-        <h2>SimpleAPI</h2>
+        <h2 className="logo">SimpleAPI</h2>
     )
 };
 
