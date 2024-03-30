@@ -39,7 +39,7 @@ class Features(Base):
     max_services = Column(Integer, server_default=text("1"))
     max_rows = Column(Integer, server_default=text("5000"))
     max_files = Column(Integer, server_default=text("50"))
-    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="all, cascade"), nullable=False)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="cascade"), nullable=False)
 
 
 class Discounts(Base):
@@ -48,7 +48,7 @@ class Discounts(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String(64), unique=True, nullable=False)
     value = Column(Float, server_default=text("0"))
-    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="all, cascade"), nullable=False)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="cascade"), nullable=False)
 
 
 class Users(Base):
@@ -96,8 +96,8 @@ class UserHasTariff(Base):
     __tablename__ = "user_has_tariff"
 
     id = Column(BigInteger, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="all, cascade"), nullable=False)
-    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="all, cascade"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False)
+    tariff_id = Column(Integer, ForeignKey("tariffs.id", ondelete="cascade"), nullable=False)
 
 
 #
@@ -163,7 +163,7 @@ class DB(metaclass=SingletonMeta):
 
     async def initialize_connection(self):
         async with self.engine.begin() as conn:
-            # await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
 
     async def get_user_by_username_or_email(self, username: str) -> Users | None:
