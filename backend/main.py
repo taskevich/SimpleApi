@@ -1,9 +1,18 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from routes import main_routes, admin_routes, credentials_routes
 from backend.backend.models import *
 from backend.backend.logger import *
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(main_routes.router)
 app.include_router(admin_routes.router)
