@@ -1,6 +1,6 @@
 import React from 'react';
 import {Outlet} from "react-router-dom";
-import "../../AuthLayout/style.scss";
+import "./style.scss";
 import Background from "../../../components/bg/Background";
 
 const AuthLayout = () => {
