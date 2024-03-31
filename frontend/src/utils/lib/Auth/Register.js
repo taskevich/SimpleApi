@@ -9,8 +9,14 @@ export const Register = async (login, password, email, phone, receive) => {
         //     phone: phone,
         //     receiveNotificationsEmail: receive
         // })
-        console.log("TRUE")
-        return 1
+        if(login && password && email && phone) {
+            console.log("TRUE")
+            return 1
+        }
+        else {
+            return alert("Не заполнены все поля")
+        }
+
     }
     catch (error) {
         console.log(error)

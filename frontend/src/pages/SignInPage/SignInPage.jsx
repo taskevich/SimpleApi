@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {change} from "../../utils/lib/Change/Change";
 import {useUser} from "../../utils/lib/Auth/UserContext";
+import Button from "../../ui/Button/Button";
 
 const SignInPage = () => {
     const {login} = useUser()
@@ -17,9 +18,9 @@ const SignInPage = () => {
             <input value={user.login} onChange={(e) => change(e, user, setUser)} type="text" name="login"/>
             <p>Пароль</p>
             <input value={user.password} onChange={(e) => change(e, user, setUser)} type="password" name="password"/>
-            <button className="btn" onClick={() => login(user)}>
+            <Button onClick={() => login(user)}>
                 Войти
-            </button>
+            </Button>
         </>
     )
 };
